@@ -176,7 +176,37 @@ def get_filing_htm(master_list, year, user_agent):
                         main_filing_row = row
                         break
 
+            break
+
     return base_url + main_filing_row.find('a', {'href':True})['href']
+
+#returns all the htm files of the filing and specific year from master list
+def get_all_filing_htm_year(master_list, year, user_agent):
+    base_url = r"https://www.sec.gov"
+    main_filing_row = ""
+    all_htms = []
+
+    for filing_info in master_list:
+
+        if filing_info['file_year'] == year:
+
+            response = requests.get(filing_info['links']['documents'], headers=user_agent)
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            doc_table = soup.find_all('table')
+
+            for row in doc_table[0].find_all('tr'):
+
+                for ele in row.find_all('td'):
+                    #might want to revist this if statement
+                    if ele.text.strip() == filing_info['file_type']:
+                        main_filing_row = row
+                        break
+
+            all_htms.append(base_url + main_filing_row.find('a', {'href': True})['href'])
+            #print(type(base_url + main_filing_row.find('a', {'href': True})['href']))
+
+    return all_htms
 
 
 # Function: Get Filing Json
